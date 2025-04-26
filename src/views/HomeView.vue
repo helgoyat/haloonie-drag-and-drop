@@ -2,11 +2,8 @@
 
 <template>
   <div class="flex flex-col items-center gap-8">
-    <h1 class="text-3xl font-bold text-white">Haloonie - Drag and Drop</h1>
-    <div
-      id="sandbox"
-      class="relative bg-orange-500 w-[400px] aspect-square rounded"
-    >
+    <h1 class="text-3xl font-bold text-white">Haloonie</h1>
+    <div class="canva bg-amber-500 w-[400px] aspect-square rounded">
       <draggable-box></draggable-box>
     </div>
   </div>

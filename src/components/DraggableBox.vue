@@ -1,66 +1,63 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const draggableElementRef = ref<HTMLElement | null>(null);
-const isDragging = ref(false);
-const pointerX = ref(0);
-const pointerY = ref(0);
+const draggableBoxRef = ref<HTMLElement | null>(null);
+// const isDragging = ref(false);
+const boxPointerX = ref(0);
+const boxPointerY = ref(0);
 
 function onDragStart(event: MouseEvent) {
-  isDragging.value = true;
-  pointerX.value = event.offsetX;
-  pointerY.value = event.offsetY;
-
+  boxPointerX.value = event.offsetX;
+  boxPointerY.value = event.offsetY;
+  // isDragging.value = true;
   document.addEventListener("pointermove", onDrag);
   document.addEventListener("pointerup", onDragEnd);
 }
 
 function onDrag(event: MouseEvent) {
-  if (!isDragging.value) return;
-  const sandboxElement = document.getElementById("sandbox");
-  if (!sandboxElement || !draggableElementRef.value) return;
-  const sandboxElementRect = sandboxElement.getBoundingClientRect();
-  const draggableElementRect =
-    draggableElementRef.value.getBoundingClientRect();
+  if (!draggableBoxRef.value) return;
+  const parentCanva = draggableBoxRef.value.parentElement;
+  if (!parentCanva || !parentCanva.classList.contains("canva")) return;
 
-  const left = event.clientX - sandboxElementRect.left - pointerX.value;
-  const top = event.clientY - sandboxElementRect.top - pointerY.value;
+  const canvaRect = parentCanva.getBoundingClientRect();
+  const boxRect = draggableBoxRef.value.getBoundingClientRect();
 
-  if (
-    left >= 0 &&
-    left <= sandboxElementRect.width - draggableElementRect.width
-  ) {
-    draggableElementRef.value.style.left = left + "px";
-  } else if (left < 0) {
-    draggableElementRef.value.style.left = 0 + "px";
-  } else if (left > sandboxElementRect.width - draggableElementRect.width) {
-    draggableElementRef.value.style.left =
-      sandboxElementRect.width - draggableElementRect.width + "px";
+  const boxRelativeLeft = event.clientX - canvaRect.left - boxPointerX.value;
+  const boxRelativeTop = event.clientY - canvaRect.top - boxPointerY.value;
+
+  const maximumLeft = canvaRect.width - boxRect.width;
+  const maximumTop = canvaRect.height - boxRect.height;
+
+  if (boxRelativeLeft >= 0 && boxRelativeLeft <= maximumLeft) {
+    draggableBoxRef.value.style.left = boxRelativeLeft + "px";
+  } else if (boxRelativeLeft < 0) {
+    draggableBoxRef.value.style.left = 0 + "px";
+  } else if (boxRelativeLeft > maximumLeft) {
+    draggableBoxRef.value.style.left = maximumLeft + "px";
   }
 
-  if (
-    top >= 0 &&
-    top <= sandboxElementRect.height - draggableElementRect.height
-  ) {
-    draggableElementRef.value.style.top = top + "px";
-  } else if (top < 0) {
-    draggableElementRef.value.style.top = 0 + "px";
-  } else if (top > sandboxElementRect.height - draggableElementRect.height) {
-    draggableElementRef.value.style.top =
-      sandboxElementRect.height - draggableElementRect.height + "px";
+  if (boxRelativeTop >= 0 && boxRelativeTop <= maximumTop) {
+    draggableBoxRef.value.style.top = boxRelativeTop + "px";
+  } else if (boxRelativeTop < 0) {
+    draggableBoxRef.value.style.top = 0 + "px";
+  } else if (boxRelativeTop > maximumTop) {
+    draggableBoxRef.value.style.top = maximumTop + "px";
   }
 }
 
 function onDragEnd(event: MouseEvent) {
-  if (!isDragging.value) return;
-  isDragging.value = false;
+  // isDragging.value = false;
+  document.removeEventListener("pointermove", onDrag);
+  document.removeEventListener("pointerup", onDragEnd);
+  boxPointerX.value = 0;
+  boxPointerY.value = 0;
 }
 </script>
 
 <template>
   <div
-    ref="draggableElementRef"
-    class="absolute top-0 left-0 bg-lime-500 text-lime-100 cursor-grab inline select-none py-3 px-4 rounded active:cursor-grabbing"
+    ref="draggableBoxRef"
+    class="absolute top-0 left-0 shadow-xs bg-pink-500 text-white cursor-grab inline select-none py-3 px-4 rounded active:cursor-grabbing"
     @pointerdown="onDragStart"
   >
     <slot>Drag Me</slot>
